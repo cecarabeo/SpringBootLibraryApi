@@ -14,18 +14,30 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.springbootlibraryapi.model.Book;
 import com.example.springbootlibraryapi.service.BookService;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
     @Autowired
     private BookService bookService;
-    
+
+    @GetMapping("/find-by-isbn")
+    public Book getFindByIsbn(@RequestParam String isbn) {
+        return bookService.findByIsbn(isbn);
+    }
+
+    @PostMapping("/add-by-isbn")
+    public Book postAddByIsbn(@RequestParam String isbn) {
+        return bookService.addBookByIsbn(isbn);
+    }
+
     @GetMapping
     public List<Book> getAllBooks() {
         return bookService.getAllBooks();
     }
-
+    
     @GetMapping("/{id}")
     public Book getBookById(@PathVariable Long id) {
         return bookService.getBookById(id);

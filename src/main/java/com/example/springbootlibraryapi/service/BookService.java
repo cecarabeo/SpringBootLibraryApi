@@ -11,6 +11,8 @@ public interface BookService {
 
     public Book findByIsbn(String isbn);
 
+    public Book addBookByIsbn(String isbn);
+
     public List<Book> getAllBooks();
 
     public Book getBookById(Long id);

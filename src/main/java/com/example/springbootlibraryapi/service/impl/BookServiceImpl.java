@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.springbootlibraryapi.model.Book;
 import com.example.springbootlibraryapi.repository.BookRepository;
 import com.example.springbootlibraryapi.service.BookService;
+import com.example.springbootlibraryapi.service.GoogleBooksService;
 
 @Service
 public class BookServiceImpl implements BookService{
@@ -15,7 +16,16 @@ public class BookServiceImpl implements BookService{
     @Autowired
     private BookRepository bookRepository;
 
+    @Autowired GoogleBooksService googleBooksService;
+
     public Book findByIsbn(String isbn) {
+        return googleBooksService.fetchBookByIsbn(isbn);
+    }
+
+    public Book addBookByIsbn(String isbn) {
+        Book book = googleBooksService.fetchBookByIsbn(isbn);
+
+        if(book != null) return bookRepository.save(book);
         return null;
     }
 
@@ -35,7 +45,7 @@ public class BookServiceImpl implements BookService{
         return bookRepository.findById(id)
             .map(existing -> {
                 existing.setTitle(updatedBook.getTitle());
-                existing.setAuthor(updatedBook.getAuthor());
+                existing.setAuthors(updatedBook.getAuthors());
                 return bookRepository.save(existing);
             })
             .orElse(null);
