@@ -190,3 +190,38 @@ src/
 
 - Ensure you have an internet connection
 - The Google Books API has rate limits; avoid rapid successive calls
+
+## 🐳 Docker Compose
+
+Run the application and a local PostgreSQL instance with Docker Compose.
+
+Build and start the services:
+
+```bash
+docker-compose up --build
+```
+
+This will expose the API at `http://localhost:9090` and a Postgres database at `localhost:5432`.
+
+Environment variables for the app service are configured in `docker-compose.yml` to point the application at the `db` service:
+
+- `SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/bookdb`
+- `SPRING_DATASOURCE_USERNAME=postgres`
+- `SPRING_DATASOURCE_PASSWORD=pass`
+
+To run the services in the background:
+
+```bash
+docker-compose up --build -d
+```
+
+To stop and remove containers, networks and volumes created by `up`:
+
+```bash
+docker-compose down -v
+```
+
+Notes:
+
+- The `Dockerfile` in the project root performs a multi-stage build (Maven build stage, lightweight runtime image).
+- If you want to run the app against a local Postgres instance instead of the container, update `src/main/resources/application.properties` accordingly.
