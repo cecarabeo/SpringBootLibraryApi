@@ -1,6 +1,5 @@
 package com.example.springbootlibraryapi.model;
 
-import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.Column;
