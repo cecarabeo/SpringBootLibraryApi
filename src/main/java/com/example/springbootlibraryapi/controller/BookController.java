@@ -1,20 +1,16 @@
 package com.example.springbootlibraryapi.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import com.example.springbootlibraryapi.dto.BookRequestDto;
+import com.example.springbootlibraryapi.dto.BookResponseDto;
 import com.example.springbootlibraryapi.model.Book;
 import com.example.springbootlibraryapi.service.BookService;
-import org.springframework.web.bind.annotation.RequestParam;
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -24,37 +20,75 @@ public class BookController {
     private BookService bookService;
 
     @GetMapping("/find-by-isbn")
-    public Book getFindByIsbn(@RequestParam String isbn) {
-        return bookService.findByIsbn(isbn);
+    public BookResponseDto getFindByIsbn(@RequestParam String isbn) {
+        Book book = bookService.findByIsbn(isbn);
+        return mapToResponseDto(book);
     }
 
     @PostMapping("/add-by-isbn")
-    public Book postAddByIsbn(@RequestParam String isbn) {
-        return bookService.addBookByIsbn(isbn);
+    public BookResponseDto postAddByIsbn(@RequestParam String isbn) {
+        Book book = bookService.addBookByIsbn(isbn);
+        return mapToResponseDto(book);
     }
 
     @GetMapping
-    public List<Book> getAllBooks() {
-        return bookService.getAllBooks();
+    public List<BookResponseDto> getAllBooks() {
+        return bookService.getAllBooks().stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
     }
     
     @GetMapping("/{id}")
-    public Book getBookById(@PathVariable Long id) {
-        return bookService.getBookById(id);
+    public BookResponseDto getBookById(@PathVariable Long id) {
+        Book book = bookService.getBookById(id);
+        return mapToResponseDto(book);
     }
 
     @PostMapping
-    public Book addBook(@RequestBody Book book) {
-        return bookService.addBook(book);
+    public BookResponseDto addBook(@Valid @RequestBody BookRequestDto bookRequestDto) {
+        Book book = mapToEntity(bookRequestDto);
+        Book savedBook = bookService.addBook(book);
+        return mapToResponseDto(savedBook);
     }
 
     @PutMapping("/{id}")
-    public Book updateBook(@PathVariable Long id, @RequestBody Book book) {
-        return bookService.updateBook(id, book);
+    public BookResponseDto updateBook(@PathVariable Long id, @Valid @RequestBody BookRequestDto bookRequestDto) {
+        Book book = mapToEntity(bookRequestDto);
+        Book updatedBook = bookService.updateBook(id, book);
+        return mapToResponseDto(updatedBook);
     }
 
     @DeleteMapping("/{id}")
     public void deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
+    }
+
+    private BookResponseDto mapToResponseDto(Book book) {
+        BookResponseDto dto = new BookResponseDto();
+        dto.setId(book.getId());
+        dto.setTitle(book.getTitle());
+        dto.setIsbn13(book.getIsbn13());
+        dto.setIsbn10(book.getIsbn10());
+        dto.setAuthors(book.getAuthors());
+        dto.setPublisher(book.getPublisher());
+        dto.setPublishDate(book.getPublishDate());
+        dto.setDescription(book.getDescription());
+        dto.setCategories(book.getCategories());
+        dto.setCover(book.getCover());
+        return dto;
+    }
+
+    private Book mapToEntity(BookRequestDto dto) {
+        Book book = new Book();
+        book.setTitle(dto.getTitle());
+        book.setIsbn13(dto.getIsbn13());
+        book.setIsbn10(dto.getIsbn10());
+        book.setAuthors(dto.getAuthors());
+        book.setPublisher(dto.getPublisher());
+        book.setPublishDate(dto.getPublishDate());
+        book.setDescription(dto.getDescription());
+        book.setCategories(dto.getCategories());
+        book.setCover(dto.getCover());
+        return book;
     }
 }
