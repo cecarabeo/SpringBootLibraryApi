@@ -1,9 +1,12 @@
 package com.example.springbootlibraryapi.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.springbootlibraryapi.dto.BookRequestDto;
@@ -26,9 +29,15 @@ public class BookController {
     }
 
     @PostMapping("/add-by-isbn")
-    public BookResponseDto postAddByIsbn(@RequestParam String isbn) {
+    public ResponseEntity<?> postAddByIsbn(@RequestParam String isbn) {
+        if (bookService.existsByIsbn13(isbn) || bookService.existsByIsbn10(isbn)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                "error", HttpStatus.CONFLICT,
+                "message", "A book with this ISBN already exists."
+            ));
+        }
         Book book = bookService.addBookByIsbn(isbn);
-        return mapToResponseDto(book);
+        return ResponseEntity.ok(mapToResponseDto(book));
     }
 
     @GetMapping
@@ -45,10 +54,16 @@ public class BookController {
     }
 
     @PostMapping
-    public BookResponseDto addBook(@Valid @RequestBody BookRequestDto bookRequestDto) {
+    public ResponseEntity<?> addBook(@Valid @RequestBody BookRequestDto bookRequestDto) {
+        if (bookService.existsByIsbn13(bookRequestDto.getIsbn13()) || bookService.existsByIsbn10(bookRequestDto.getIsbn10())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                "error", HttpStatus.CONFLICT,
+                "message", "A book with this ISBN already exists."
+            ));
+        }
         Book book = mapToEntity(bookRequestDto);
         Book savedBook = bookService.addBook(book);
-        return mapToResponseDto(savedBook);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponseDto(savedBook));
     }
 
     @PutMapping("/{id}")

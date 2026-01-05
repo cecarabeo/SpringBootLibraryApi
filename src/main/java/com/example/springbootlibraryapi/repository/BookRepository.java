@@ -7,5 +7,7 @@ import com.example.springbootlibraryapi.model.Book;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long>{
+    boolean existsByIsbn13(String isbn13);
 
+    boolean existsByIsbn10(String isbn10);
 }

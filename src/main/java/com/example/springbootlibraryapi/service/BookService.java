@@ -22,4 +22,8 @@ public interface BookService {
     public Book updateBook(Long id, Book updatedBook);
 
     public void deleteBook(Long id);
+    
+    boolean existsByIsbn13(String isbn13);
+
+    boolean existsByIsbn10(String isbn10);
 }
